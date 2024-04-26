@@ -39,8 +39,6 @@ public class AuthController {
 		return authService.registerUser(userRequest);
 	}
 	
-	//verifying OTP
-	
 	@PostMapping("/verify-email")                        
 	public ResponseEntity<ResponseStructure<userResponse>> verifyOTP(@RequestBody OtpRequest otpRequest){
 		return authService.verifyOTP(otpRequest);
@@ -50,6 +48,8 @@ public class AuthController {
 //	public String test() {
 //		return jwtService.generateAccessToken("abbas","SELLER");
 //	}
+	
+	// USER LOGIN
 	
 	@PostMapping("/login")
 	public ResponseEntity<ResponseStructure<AuthResponse>> userLogin(@RequestBody AuthRequest authRequest) {
