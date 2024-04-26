@@ -31,8 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AuthController {
 	
 	private AuthService authService;
-	private JwtService jwtService;
-	private AuthenticationManager authenticationManager;
+//	private JwtService jwtService;
 	
 	@PostMapping("/register")
 	public ResponseEntity<SimpleResponseStructure> registerUser(@RequestBody UserRequest userRequest){
@@ -53,18 +52,16 @@ public class AuthController {
 	public ResponseEntity<ResponseStructure<AuthResponse>> userLogin(@RequestBody AuthRequest authRequest) {
 		return authService.userLogin(authRequest);
 	}
-	
-	// USER LOGOUT 
-	
+
 	@PostMapping("/logout")
-	public ResponseEntity<SimpleResponseStructure> userLogout(@CookieValue("at") String accessToken,
-			@CookieValue("rt") String refreshToken) {
+	public ResponseEntity<SimpleResponseStructure> userLogout(@CookieValue(name = "at" ,required = false) String accessToken,
+			@CookieValue(name = "rt" ,required = false) String refreshToken) {
 		return authService.userLogout(accessToken,refreshToken);
 	}
 	
 	@PostMapping("/refeshlogin/tokenrotation")
-	public ResponseEntity<ResponseStructure<AuthResponse>> refreshLoginAndTokenRotation(@CookieValue("at") String accessToken,
-			@CookieValue("rt") String refreshToken) {
+	public ResponseEntity<ResponseStructure<AuthResponse>> refreshLoginAndTokenRotation(@CookieValue(name = "at" ,required = false) String accessToken,
+			@CookieValue(name = "rt" ,required = false) String refreshToken) {
 		return authService.refreshLoginAndTokenRotation(accessToken, refreshToken);
 	}
 }

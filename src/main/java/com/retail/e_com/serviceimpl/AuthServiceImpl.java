@@ -2,6 +2,7 @@ package com.retail.e_com.serviceimpl;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +45,7 @@ import com.retail.e_com.utility.MessageModel;
 import com.retail.e_com.utility.ResponseStructure;
 import com.retail.e_com.utility.SimpleResponseStructure;
 
+import ch.qos.logback.core.subst.Token;
 import jakarta.mail.MessagingException;
 
 @Service
@@ -202,8 +204,8 @@ public class AuthServiceImpl implements AuthService {
 		HttpHeaders headers = new HttpHeaders();
 
 		userRepo.findByUserName(username).ifPresent(user ->{
-			generateAccessToken(user, headers, new AccessToken());
-			generateRefreshToken(user, headers, new RefreshToken());
+			generateAccessToken(user, headers);
+			generateRefreshToken(user, headers);
 
 		});
 		return ResponseEntity.ok().headers(headers).body(authResponseStucture.setMessage("login succesfully")
@@ -226,11 +228,12 @@ public class AuthServiceImpl implements AuthService {
 				.build();
 	}
 
-	private void generateRefreshToken(User user, HttpHeaders headers, RefreshToken refreshToken) {
+	private void generateRefreshToken(User user, HttpHeaders headers) {
 		String token = jwtService.generateRefreshToken(user,user.getUserRole().name());
 		headers.add(HttpHeaders.SET_COOKIE, configureCookie("rt", token, refreshExpiration));
 		//store the token to the database
 
+		RefreshToken refreshToken = new RefreshToken();
 		refreshToken.setToken(token);
 		refreshToken.setExpiration(LocalDateTime.now());
 		refreshToken.setBlocked(false);
@@ -238,10 +241,11 @@ public class AuthServiceImpl implements AuthService {
 		refreshTokenRepo.save(refreshToken);
 	}
 
-	private void generateAccessToken(User user, HttpHeaders headers, AccessToken accessToken) {
+	private void generateAccessToken(User user, HttpHeaders headers) {
 		String token = jwtService.generateAccessToken(user,user.getUserRole().name());
 		headers.add(HttpHeaders.SET_COOKIE, configureCookie("at", token, accessExpiration));
 
+		AccessToken accessToken = new AccessToken();
 		accessToken.setToken(token);
 		accessToken.setExpiration(LocalDateTime.now());
 		accessToken.setBlocked(false);
@@ -259,21 +263,21 @@ public class AuthServiceImpl implements AuthService {
 				.sameSite("Lax")
 				.build().toString();
 	}
-	
+
 	@Override
 	public ResponseEntity<SimpleResponseStructure> userLogout(String accessToken, String refreshToken) {
-	
+
 		if(accessToken==null || refreshToken==null ) 
 			throw new UserIsNotLoginException("Please LogIn");
 
 		HttpHeaders headers = new HttpHeaders();
-		
+
 		accessTokenRepo.findByToken(accessToken).ifPresent(access ->{
 
-			 refreshTokenRepo.findByToken(refreshToken).ifPresent(refresh ->{
-				
-				 access.setBlocked(true);
-				 accessTokenRepo.save(access);
+			refreshTokenRepo.findByToken(refreshToken).ifPresent(refresh ->{
+
+				access.setBlocked(true);
+				accessTokenRepo.save(access);
 				refresh.setBlocked(true);
 				refreshTokenRepo.save(refresh);
 
@@ -289,7 +293,7 @@ public class AuthServiceImpl implements AuthService {
 	private void removeAccess(String value, HttpHeaders headers) {
 		headers.add(HttpHeaders.SET_COOKIE, removeCookie(value));
 	}
-	
+
 	private String removeCookie(String name) {
 		return ResponseCookie.from(name,"")
 				.domain("localhost")
@@ -304,7 +308,37 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public ResponseEntity<ResponseStructure<AuthResponse>> refreshLoginAndTokenRotation(String accessToken,
 			String refreshToken) {
-		// TODO Auto-generated method stub
-		return null;
+		System.out.println(accessToken);
+		if(refreshToken == null)
+			throw new UserIsNotLoginException("user not loged");
+
+		if(accessToken != null)
+			accessTokenRepo.findByToken(accessToken).ifPresent(token -> {
+				token.setBlocked(true);
+				accessTokenRepo.save(token);
+			});
+
+		Date date = jwtService.getIssuedDate(refreshToken);
+		String username = jwtService.getUserName(refreshToken);
+
+		HttpHeaders headers = new HttpHeaders();
+
+		return userRepo.findByUserName(username).map(user -> {
+			if(date.before(new Date())) {
+				refreshTokenRepo.findByToken(refreshToken).ifPresent(token->{
+					token.setBlocked(true);
+					refreshTokenRepo.save(token);
+				});
+				generateRefreshToken(user, headers);
+			}
+			else
+				headers.add(HttpHeaders.SET_COOKIE, configureCookie("rt", refreshToken, refreshExpiration));
+
+			generateAccessToken(user, headers);
+			return ResponseEntity.ok().headers(headers)
+					.body(authResponseStucture.setStatus(HttpStatus.ACCEPTED.value())
+							.setBody(mapToAuthResponse(user.getUserName(), accessExpiration, refreshExpiration))
+							.setMessage("token Success"));
+		}).get();
 	}
 }
