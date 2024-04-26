@@ -49,12 +49,12 @@ public class AuthController {
 //		return jwtService.generateAccessToken("abbas","SELLER");
 //	}
 	
-	// USER LOGIN
-	
 	@PostMapping("/login")
 	public ResponseEntity<ResponseStructure<AuthResponse>> userLogin(@RequestBody AuthRequest authRequest) {
 		return authService.userLogin(authRequest);
 	}
+	
+	// USER LOGOUT 
 	
 	@PostMapping("/logout")
 	public ResponseEntity<SimpleResponseStructure> userLogout(@CookieValue("at") String accessToken,
