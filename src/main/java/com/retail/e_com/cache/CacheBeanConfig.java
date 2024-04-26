@@ -8,4 +8,13 @@ import com.retail.e_com.model.User;
 @Configuration
 public class CacheBeanConfig {
 	
+	@Bean
+	CacheStore<String> otpCache(){
+		return new CacheStore<String>(5);
+	}
+
+	@Bean
+	CacheStore<User> userCache(){
+		return new CacheStore<User>(30);
+	}
 }

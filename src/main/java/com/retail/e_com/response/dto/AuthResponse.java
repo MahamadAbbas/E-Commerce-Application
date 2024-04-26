@@ -1,4 +1,4 @@
-package com.retail.e_com.request_dto;
+package com.retail.e_com.response.dto;
 
 import com.retail.e_com.enums.UserRole;
 
@@ -13,11 +13,12 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRequest {
+public class AuthResponse {
 	
-	private String name;
-	private String email;
-	private String password;
+	private int userId;
+	private String username;
 	private UserRole userRole;
+	private long accessExpiration;
+	private long refreshExpiration;
 
 }

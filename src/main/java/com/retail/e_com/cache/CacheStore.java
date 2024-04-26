@@ -20,11 +20,11 @@ public class CacheStore<T> {
 		cache.put(key, value);
 	}
 	
-	public T getData(String key) {
+	public T get(String key) {
 		return cache.getIfPresent(key);
 	}
 	
-	public void removeData(String key) {
-		
+	public void remove(String key) {
+		cache.invalidate(key);
 	}
 }
