@@ -39,7 +39,9 @@ public class AuthController {
 		return authService.registerUser(userRequest);
 	}
 	
-	@PostMapping("/verify-email")
+	//verifying OTP
+	
+	@PostMapping("/verify-email")                        
 	public ResponseEntity<ResponseStructure<userResponse>> verifyOTP(@RequestBody OtpRequest otpRequest){
 		return authService.verifyOTP(otpRequest);
 	}
