@@ -18,5 +18,5 @@ public class SimpleResponseStructure {
 	public SimpleResponseStructure setMessage(String message) {
 		this.message = message;
 		return this;
-	}
+	}	
 }

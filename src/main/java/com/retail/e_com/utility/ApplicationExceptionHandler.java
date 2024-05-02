@@ -6,9 +6,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.retail.e_com.exception.AccessTokenExpireException;
+import com.retail.e_com.exception.AddressAllreadyAddedException;
+import com.retail.e_com.exception.AddressLimitException;
+import com.retail.e_com.exception.AddressNotFoundException;
+import com.retail.e_com.exception.AddressTypeIsNullException;
+import com.retail.e_com.exception.AddressnotFoundByIdException;
 import com.retail.e_com.exception.AuthenticationException;
+import com.retail.e_com.exception.ContactNotFoundByIdException;
+import com.retail.e_com.exception.ContactsFulledException;
 import com.retail.e_com.exception.OtpExpiredException;
 import com.retail.e_com.exception.OtpIncorrectException;
+import com.retail.e_com.exception.PriorityNotSetException;
 import com.retail.e_com.exception.RegistrationSessionExpired;
 import com.retail.e_com.exception.UserAlreadyExistByEmailException;
 import com.retail.e_com.exception.UserIsNotLoginException;
@@ -70,5 +79,68 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 			UserIsNotLoginException ex){
 		return errorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), 
 				"User is NOT LOGGED IN");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleAccessTokenExpire(
+			AccessTokenExpireException ex){
+		return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), 
+				"AccessToken Is expired Please Re Generate AccessToken..");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleAddressTypeIsNull(
+			AddressTypeIsNullException ex){
+		return errorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), 
+				"Address Type Is not Present ..");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleAddressAllreadyAdded(
+			AddressAllreadyAddedException ex){
+		return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), 
+				"Address Allready Present");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleAddressLimit(
+			AddressLimitException ex){
+		return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), 
+				"Address is Limit");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleAddressnotFoundById(
+			AddressnotFoundByIdException ex){
+		return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), 
+				"Address not Found By Id.....");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleContactsFulled(
+			ContactsFulledException ex){
+		return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), 
+				"Contacts Fulled ");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleAddressNotFound(
+			AddressNotFoundException ex){
+		return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), 
+				"Given Address Not Found");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handlePriorityNotSet(
+			PriorityNotSetException ex){
+		return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), 
+				"Given Priority Not Set");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleContactNotFoundById(
+			ContactNotFoundByIdException ex){
+		return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), 
+				"Given Contact Not Found By Id..");
 	}
 }

@@ -45,7 +45,6 @@ import com.retail.e_com.utility.MessageModel;
 import com.retail.e_com.utility.ResponseStructure;
 import com.retail.e_com.utility.SimpleResponseStructure;
 
-import ch.qos.logback.core.subst.Token;
 import jakarta.mail.MessagingException;
 
 @Service
